@@ -10,6 +10,7 @@ import common.Session;
 import database.MSSQL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -32,8 +33,15 @@ public class ReviewEventDialog extends javax.swing.JDialog {
         this.eventId = eventId;
         this.session = session;
         this.getEventFromDB(this.eventId);
-        if (new MSSQL().isAttendant(eventId, this.session.getMyID()) || event.getMaxAmount() - event.getAttendantsCount() <= 0) {
+        if (new MSSQL().isAttendant(eventId, this.session.getMyID())) {
             this.attendBtn.setEnabled(false);
+            this.attendBtn.setText("Jau užsiregistruota!");
+        } else if (event.getMaxAmount() - event.getAttendantsCount() <= 0) {
+            this.attendBtn.setEnabled(false);
+            this.attendBtn.setText("Renginys pilnas!");
+        } else if (event.getStartsAt().compareTo(new Date()) < 0) {
+            this.attendBtn.setEnabled(false);
+            this.attendBtn.setText("Renginio pradžia jau praeityje!");
         }
     }
 

@@ -6,6 +6,7 @@
 package gui;
 
 import com.toedter.calendar.JTextFieldDateEditor;
+import common.Common;
 import common.Event;
 import common.Session;
 import database.MSSQL;
@@ -295,7 +296,13 @@ public class EditEventDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelBtnActionPerformed
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
-        new MSSQL().deleteEvent(this.event.getId());
+        ConfirmDeleteEvent dialog = new ConfirmDeleteEvent(null, true, this.event.getId());
+        dialog.setTitle("Renginio trynimas");
+        dialog.setModal(true);
+        dialog.pack();
+        Common.center(dialog);
+        dialog.setResizable(false);
+        dialog.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_deleteBtnActionPerformed
 
