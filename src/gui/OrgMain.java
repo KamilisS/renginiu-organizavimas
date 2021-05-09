@@ -15,6 +15,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.table.DefaultTableModel;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import common.PdfEvent;
+import java.io.FileOutputStream;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -80,6 +89,7 @@ public class OrgMain extends javax.swing.JFrame {
         exitBtn = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         orderField = new javax.swing.JComboBox<>();
+        generatePdfBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -193,27 +203,33 @@ public class OrgMain extends javax.swing.JFrame {
             }
         });
 
+        generatePdfBtn.setText("Generuoti pajamų ataskaitą");
+        generatePdfBtn.setToolTipText("");
+        generatePdfBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generatePdfBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1194, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1194, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(createEventBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(logOutBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(exitBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(nameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(moneyLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addComponent(jSeparator2)
-                    .addComponent(jSeparator1)
-                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(nameLabel))
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addGroup(layout.createSequentialGroup()
@@ -238,7 +254,11 @@ public class OrgMain extends javax.swing.JFrame {
                                     .addComponent(jLabel3))
                                 .addGap(71, 71, 71)
                                 .addComponent(jLabel6)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(generatePdfBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(moneyLabel)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -250,11 +270,16 @@ public class OrgMain extends javax.swing.JFrame {
                         .addComponent(createEventBtn)
                         .addComponent(logOutBtn)
                         .addComponent(exitBtn))
+                    .addComponent(nameLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(nameLabel)
+                        .addGap(1, 1, 1)
+                        .addComponent(moneyLabel)
+                        .addGap(26, 26, 26))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(moneyLabel)))
-                .addGap(18, 18, 18)
+                        .addComponent(generatePdfBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -281,7 +306,7 @@ public class OrgMain extends javax.swing.JFrame {
                 .addGap(1, 1, 1)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -374,10 +399,61 @@ public class OrgMain extends javax.swing.JFrame {
         this.refreshTable();
     }//GEN-LAST:event_tableMouseClicked
 
+    private void generatePdfBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generatePdfBtnActionPerformed
+        
+        try {
+            String pavadinimas = "C:\\Users\\gvt48\\Desktop\\ataskaita.pdf";
+            Document doc = new Document();
+            PdfWriter.getInstance(doc, new FileOutputStream(pavadinimas));
+        
+            doc.open();
+            ArrayList<PdfEvent> events = new MSSQL().getOrganiserPdfEvents(this.session.getMyID(), this.filters);
+            
+            PdfPTable table = new PdfPTable(3);
+            Font boldFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
+            PdfPCell cell1 = new PdfPCell();
+            Phrase firstCol = new Phrase("Renginio pavadinimas", boldFont);
+            cell1.addElement(firstCol);
+            PdfPCell cell2 = new PdfPCell();
+            Phrase secCol = new Phrase("Renginio tipas", boldFont);
+            cell2.addElement(secCol);
+            PdfPCell cell3 = new PdfPCell();
+            Phrase thirdCol = new Phrase("Renginio pajamos", boldFont);
+            cell3.addElement(thirdCol);
+            table.addCell(cell1);
+            table.addCell(cell2);
+            table.addCell(cell3);
+            for (PdfEvent o : events) {
+                table.addCell(o.getEventName());
+                table.addCell(o.getEventTypeName());
+                if (o.getMoneyEarned() == null) {
+                    table.addCell("");
+                } else {
+                    table.addCell(Double.toString(o.getMoneyEarned()));
+                }
+            }
+            doc.add(table);
+            doc.close();
+            
+            JOptionPane.showMessageDialog(null,
+                "Ataskaita sugeneruota!",
+                null,
+                JOptionPane.INFORMATION_MESSAGE);
+        
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                "Klaida generuojant ataskaitą!",
+                null,
+                JOptionPane.ERROR_MESSAGE);
+        }
+        
+    }//GEN-LAST:event_generatePdfBtnActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton createEventBtn;
     private javax.swing.JButton exitBtn;
     private com.toedter.calendar.JDateChooser fromDate;
+    private javax.swing.JButton generatePdfBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

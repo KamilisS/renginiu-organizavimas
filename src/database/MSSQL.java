@@ -6,7 +6,7 @@
 package database;
 
 import common.Event;
-import common.EventType;
+import common.PdfEvent;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,6 +168,44 @@ public class MSSQL {
         }
         
         return user;
+    }
+    
+    public ArrayList<PdfEvent> getOrganiserPdfEvents(int organiserId, HashMap<String, String> filters) {
+        ArrayList<PdfEvent> list = new ArrayList<>();
+        
+        String SQL = "SELECT Renginys.renginio_pavadinimas, Renginiu_tipai.renginio_tipo_pav, (Renginys.renginio_kaina * count(Dalyvauja.renginio_id)) AS pajamos " +
+                     "FROM Renginys " +
+                     "JOIN Renginiu_tipai ON Renginiu_tipai.renginio_tipo_id = Renginys.renginio_tipo_id " +
+                     "LEFT JOIN Dalyvauja ON Dalyvauja.renginio_id = Renginys.renginio_id " +
+                     "WHERE Renginys.organizatoriaus_id = " + organiserId + " ";
+        if (!filters.get("type").contentEquals("Visi")) {
+            SQL += "AND Renginiu_tipai.renginio_tipo_pav = '" + filters.get("type") + "' ";
+        }
+        if (filters.get("from") != null) {
+            SQL += "AND Renginys.renginio_pradzia >= '" + filters.get("from") + "' ";
+        }
+        if (filters.get("to") != null) {
+            SQL += "AND Renginys.renginio_pradzia <= '" + filters.get("to") + " 23:59:59' ";
+        }
+        SQL += "GROUP BY Renginys.renginio_pavadinimas, Renginiu_tipai.renginio_tipo_pav, Renginys.renginio_kaina";
+        
+        try {
+            ResultSet rs = this.getResultSet(SQL);
+            while(rs.next()) {
+                PdfEvent event = new PdfEvent();
+                event.setEventName(rs.getString("renginio_pavadinimas"));
+                event.setEventTypeName(rs.getString("renginio_tipo_pav"));
+                double d = rs.getDouble("pajamos");
+                if (!rs.wasNull()) {
+                    event.setMoneyEarned(d);
+                }
+                list.add(event);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return list;
     }
     
     public ArrayList<Event> getOrganiserEvents(int organiserId, HashMap<String, String> filters) {
